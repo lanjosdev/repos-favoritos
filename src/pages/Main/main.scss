@@ -58,6 +58,9 @@ main.Page-Main {
                 }
 
                 div {
+                    display: flex;
+                    align-items: center;
+                    
                     div button {
                         margin-right: 1rem;
                     }

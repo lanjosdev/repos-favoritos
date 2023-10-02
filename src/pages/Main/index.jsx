@@ -1,6 +1,7 @@
 // Funcionalidades / Libs:
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import API_URL from '../../API/api';
+import { Link } from "react-router-dom";
 
 // Contexts:
 // import { UserContext } from "../../contexts/userContext";
@@ -18,10 +19,25 @@ import './main.scss';
 
 export default function Main() {
     const [inputRepo, setInputRepo] = useState('');
+    const [errorInput, setErrorInput] = useState(null);
 
     const [repositorios, setRepositorios] = useState([]);
     const [loadingRepos, setLoadingRepos] = useState(false);
 
+    // Busca ao iniciar:
+    useEffect(()=> {
+        const reposLocal = localStorage.getItem('reposStorage');
+        // console.log(reposLocal);
+
+        if(reposLocal !== null) {
+            setRepositorios(JSON.parse(reposLocal));
+        }
+    }, []);
+
+    // Salva no local ao ter alterações:
+    useEffect(()=> {
+        localStorage.setItem('reposStorage', JSON.stringify(repositorios))
+    }, [repositorios]);
 
     const handleSubmit = useCallback((e)=> {
         e.preventDefault();
@@ -29,9 +45,13 @@ export default function Main() {
         setLoadingRepos(true);  
 
         async function submit() {
-                      
             try {
                 const response = await API_URL.get(`repos/${inputRepo}`);
+
+                const hasRepo = repositorios.find(repo => repo.name === inputRepo); //vai receber na const T ot F;
+                if(hasRepo) {
+                    throw new Error('Repositorio Duplicado!');
+                }
             
                 const data = {
                     name: response.data.full_name,
@@ -39,9 +59,17 @@ export default function Main() {
                 }
 
                 setRepositorios([...repositorios, data]);
-            } finally {
-                setLoadingRepos(false);
                 setInputRepo('');
+
+            } catch(erro) {
+
+                setErrorInput(true);
+                console.log(erro);
+
+            } finally {
+
+                setLoadingRepos(false);
+                // setInputRepo('');
             }
         }
         submit();        
@@ -69,9 +97,10 @@ export default function Main() {
                     <input 
                     type="text" 
                     placeholder='Adicionar Repositorio' 
-                    className="input input-bordered shadow"
+                    className={`input input-bordered shadow ${errorInput && 'input-error'}`}
                     value={inputRepo}
-                    onChange={(e)=> setInputRepo(e.target.value)}
+                    onChange={(e)=> {setErrorInput(null); setInputRepo(e.target.value)}}
+                    required
                     />
 
                     <button 
@@ -96,7 +125,7 @@ export default function Main() {
                                     </button>
                                 </div>
                                 
-                                <span>{repo.name}</span>
+                                <Link to={`/repositorio/${encodeURIComponent(repo.name)}`}>{repo.name}</Link>
                             </div>
 
                             <a href={repo.page} target="blank">
