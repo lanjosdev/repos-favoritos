@@ -46,12 +46,12 @@ export default function Main() {
 
         async function submit() {
             try {
-                const response = await API_URL.get(`repos/${inputRepo}`);
-
-                const hasRepo = repositorios.find(repo => repo.name === inputRepo); //vai receber na const T ot F;
+                const hasRepo = repositorios.find(repo => repo.name === inputRepo.substr(0, (length.repo.name - 1))); //vai receber na const T ot F;
                 if(hasRepo) {
                     throw new Error('Repositorio Duplicado!');
                 }
+                
+                const response = await API_URL.get(`repos/${inputRepo}`);
             
                 const data = {
                     name: response.data.full_name,
