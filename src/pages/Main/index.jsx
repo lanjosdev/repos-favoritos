@@ -46,7 +46,7 @@ export default function Main() {
 
         async function submit() {
             try {
-                const hasRepo = repositorios.find(repo => repo.name === inputRepo.substr(0, (length.repo.name - 1))); //vai receber na const T ot F;
+                const hasRepo = repositorios.find(repo => repo.name === inputRepo.trim()); //vai receber na const T ot F;
                 if(hasRepo) {
                     throw new Error('Repositorio Duplicado!');
                 }
@@ -99,7 +99,10 @@ export default function Main() {
                     placeholder='Adicionar Repositorio' 
                     className={`input input-bordered shadow ${errorInput && 'input-error'}`}
                     value={inputRepo}
-                    onChange={(e)=> {setErrorInput(null); setInputRepo(e.target.value)}}
+                    onChange={(e)=> {
+                        setErrorInput(null); 
+                        setInputRepo(e.target.value);
+                    }}
                     required
                     />
 
