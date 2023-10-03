@@ -46,7 +46,6 @@ export default function Main() {
 
         async function submit() {
             const repoInput = inputRepo.trim();
-            console.log(repoInput);
 
             try {
                 const hasRepo = repositorios.find(repo => repo.name === repoInput); //vai receber na const T ot F;
