@@ -17,6 +17,10 @@ export default function Repositorio() {
     const [issues, setIssues] = useState([]);
     const [loadingDados, setLoadingDados] = useState(true);
 
+    const [page, setPage] = useState(1);
+    const [notNext, setNotNext] = useState(false);
+
+
     useEffect(()=> {
 
         async function carregaDadosRepo() {
@@ -38,6 +42,37 @@ export default function Repositorio() {
 
     }, [nameRepo]);
 
+
+    useEffect(()=> {
+        async function loadIssue() {
+            const response = await API_URL.get(`/repos/${nameRepo}/issues`, {
+                params: {
+                    state: 'open',
+                    page: page,
+                    per_page: 5
+                },
+            });
+            // console.log(response.data);
+
+            if(issues !== null) {
+                if(response.data === issues) {
+                    setNotNext(true);
+                    // console.log('dentro');
+                    return;
+                }
+                // console.log('fora');
+            }
+            
+            setIssues(response.data);
+        }
+        loadIssue();
+    }, [nameRepo, page]);
+
+    function handlePage(action) {
+        setPage(action === 'next' ? page + 1 : page - 1);
+    }
+
+
     return (
         <main className="Page-repositorio">
             <div className="grid">
@@ -50,6 +85,7 @@ export default function Repositorio() {
                 ) : (
                 
                 <>
+
                 <Link to='/'>
                     <FaArrowLeft size={25}/>
                 </Link>
@@ -84,6 +120,24 @@ export default function Repositorio() {
                         </li>
                     ))}
                 </ul>
+
+                <div className="page-actions">
+                    <button 
+                    onClick={()=> handlePage('back')}
+                    disabled={page === 1}
+                    >
+                        Voltar                                       
+                    </button>
+
+                    <button 
+                    onClick={()=> handlePage('next')}
+                    disabled={notNext}
+                    >
+                        Próxima
+                    </button>
+                </div>
+
+
                 </>
 
                 )}
