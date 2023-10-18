@@ -17,6 +17,13 @@ export default function Repositorio() {
     const [issues, setIssues] = useState([]);
     const [loadingDados, setLoadingDados] = useState(true);
 
+    const [filters, setFilters] = useState([
+        {state: 'all', label: 'Todos', active: true},
+        {state: 'open', label: 'Abertas', active: false},
+        {state: 'closed', label: 'Fecahdas', active: false}
+    ]);
+    const [filterIdx, setFilterIdx] = useState(0);
+
     const [page, setPage] = useState(1);
     const [notNext, setNotNext] = useState(false);
 
@@ -28,7 +35,7 @@ export default function Repositorio() {
                 API_URL.get(`/repos/${nameRepo}`),
                 API_URL.get(`/repos/${nameRepo}/issues`, {
                     params: {
-                        state: 'open',
+                        state: filters.find((f) => f.active).state, // 'all'
                         per_page: 5
                     }
                 })
@@ -40,14 +47,24 @@ export default function Repositorio() {
         }
         carregaDadosRepo();
 
-    }, [nameRepo]);
+    }, [nameRepo, filters]);
+
+
+    function handleFilter(idx) {
+        console.log(idx);
+        console.log(filters[idx].state);
+        
+        setFilterIdx(idx);
+        setPage(1);
+        setNotNext(false);        
+    }
 
 
     useEffect(()=> {
         async function loadIssue() {
             const response = await API_URL.get(`/repos/${nameRepo}/issues`, {
                 params: {
-                    state: 'open',
+                    state: filters[filterIdx].state,
                     page: page,
                     per_page: 5
                 },
@@ -66,7 +83,7 @@ export default function Repositorio() {
             setIssues(response.data);
         }
         loadIssue();
-    }, [nameRepo, page]);
+    }, [filterIdx, filters, nameRepo, page]);
 
     function handlePage(action) {
         setPage(action === 'next' ? page + 1 : page - 1);
@@ -100,6 +117,21 @@ export default function Repositorio() {
                     
                     <p>{repositorio.description}</p>
                 </div>
+                
+                {issues.length !== 0 && (
+                <div className="filter-list">
+                    {filters.map((filter, idx)=> (
+                        <button 
+                        key={filter.label} 
+                        className={`${filterIdx === idx && 'active'}`}
+                        // className={`${filter.active && 'active'}`}
+                        onClick={()=> handleFilter(idx)}
+                        >
+                            {filter.label}
+                        </button>
+                    ))}
+                </div>
+                )}
 
                 <ul className="IssuesList">
                     {issues.map(issue=> (
@@ -121,6 +153,7 @@ export default function Repositorio() {
                     ))}
                 </ul>
 
+                {issues.length !== 0 && (
                 <div className="page-actions">
                     <button 
                     onClick={()=> handlePage('back')}
@@ -136,6 +169,7 @@ export default function Repositorio() {
                         Próxima
                     </button>
                 </div>
+                )}
 
 
                 </>

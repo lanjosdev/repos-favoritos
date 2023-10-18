@@ -26,9 +26,30 @@ main.Page-repositorio {
             }
         }
 
+        .filter-list {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            max-width: 250px;
+
+            button {
+                flex: 1;
+                padding: 3px 6px;
+                border-radius: 5px;
+                font-weight: 600;
+
+                transition: all .3s ease;
+
+                &.active {
+                    background-color: $color-text;
+                    color: #fff;
+                }
+            }
+        }
+
         .IssuesList {
-            margin-top: 3.5rem;
-            padding-top: 3rem;
+            margin-top: 1rem;
+            padding-top: 2.5rem;
             border-top: 1px solid $gray-200;
 
             li {
